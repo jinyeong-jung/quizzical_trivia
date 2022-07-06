@@ -1,40 +1,26 @@
-import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
 import Answer from './Answer';
 import './Quiz.css';
 
-function Quiz({ question, correctAnswer, incorrectAnswers, resultOpened }) {
-  let unshuffledAnswers = [correctAnswer, ...incorrectAnswers];
-  let shuffledAnswers = unshuffledAnswers
-    .map((value) => ({
-      value,
-      sort: Math.random(),
-    }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => {
-      return {
-        id: nanoid(),
-        data: value,
-        isCorrect: value === correctAnswer,
-      };
-    });
-
-  function clickAnswer(answer) {
-    // console.log(correctAnswer);
-    // console.log(answer);
-    // console.log(correctAnswer === answer);
+function Quiz({ question, answers, resultOpened, gradeAnswer }) {
+  function clickAnswer(selectedAnswerId) {
+    const selectedAnswer = answers.find(
+      (answer) => answer.id === selectedAnswerId
+    );
+    gradeAnswer(selectedAnswer.isCorrect);
   }
 
   return (
     <div className='quiz'>
       <h4 className='question'>{question}</h4>
       <div className='answers'>
-        {shuffledAnswers.map((answer) => (
+        {answers.map((answer) => (
           <Answer
             key={answer.id}
-            data={answer.data}
+            id={answer.id}
+            value={answer.value}
             isCorrect={answer.isCorrect}
-            resultOpened={false}
+            resultOpened={resultOpened}
             clickAnswer={clickAnswer}
           />
         ))}
@@ -47,7 +33,7 @@ export default Quiz;
 
 Quiz.prototype = {
   question: PropTypes.string.isRequired,
-  correctAnswer: PropTypes.isRequired,
-  incorrectAnswers: PropTypes.array.isRequired,
+  answers: PropTypes.array.isRequired,
   resultOpened: PropTypes.bool.isRequired,
+  gradeAnswer: PropTypes.func.isRequired,
 };

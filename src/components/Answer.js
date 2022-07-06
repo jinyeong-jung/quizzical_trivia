@@ -3,11 +3,14 @@ import { useState } from 'react';
 
 import './Answer.css';
 
-function Answer({ data, isCorrect, clickAnswer, resultOpened }) {
+function Answer({ id, value, isCorrect, clickAnswer, resultOpened }) {
   const [selected, setSelected] = useState(false);
 
   function handleClick() {
     setSelected((prev) => !prev);
+    if (selected) {
+      clickAnswer(id);
+    }
   }
 
   return (
@@ -17,7 +20,7 @@ function Answer({ data, isCorrect, clickAnswer, resultOpened }) {
       }`}
       onClick={handleClick}
     >
-      {data}
+      {value}
     </span>
   );
 }
@@ -25,7 +28,8 @@ function Answer({ data, isCorrect, clickAnswer, resultOpened }) {
 export default Answer;
 
 Answer.prototype = {
-  data: PropTypes.isRequired,
+  id: PropTypes.string.isRequired,
+  value: PropTypes.isRequired,
   isCorrect: PropTypes.bool.isRequired,
   clickAnswer: PropTypes.func.isRequired,
   resultOpened: PropTypes.bool.isRequired,

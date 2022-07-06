@@ -10,27 +10,69 @@ function QuizPage() {
   const API_URL = 'https://opentdb.com/api.php?amount=10';
 
   const [quizzes, setQuizzes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [resultOpened, setResultOpened] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0);
 
   useEffect(() => {
     async function getQuizzes() {
+      setLoading(true);
       const res = await fetch(API_URL);
       const json = await res.json();
-      setQuizzes(json.results);
+      const quizObjects = makeQuizObjects(json);
+
+      setQuizzes(quizObjects);
       await setLoading(false);
     }
 
     getQuizzes();
   }, []);
 
+  function makeQuizObjects(data) {
+    return data.results.map((quiz) => ({
+      id: nanoid(),
+      question: quiz.question,
+      answers: shuffleAnswers(quiz.correct_answer, quiz.incorrect_answers),
+      correct: false,
+    }));
+  }
+
+  function shuffleAnswers(correctAnswer, incorrectAnswers) {
+    let unshuffledAnswers = [correctAnswer, ...incorrectAnswers];
+    return unshuffledAnswers
+      .map((value) => ({
+        value,
+        sort: Math.random(),
+      }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => {
+        return {
+          id: nanoid(),
+          value,
+          isCorrect: value === correctAnswer,
+        };
+      });
+  }
+
+  function gradeAnswer(quizCorrect) {
+    setCorrectCount((prevCount) => (quizCorrect ? prevCount + 1 : prevCount));
+  }
+
+  function handleButtonClick() {
+    if (resultOpened) {
+      console.log(correctCount);
+    } else {
+      setResultOpened(true);
+    }
+  }
+
   const quizzesElements = quizzes.map((quiz) => (
     <Quiz
-      key={nanoid()}
+      key={quiz.id}
       question={quiz.question}
-      correctAnswer={quiz.correct_answer}
-      incorrectAnswers={quiz.incorrect_answers}
+      answers={quiz.answers}
       resultOpened={resultOpened}
+      gradeAnswer={gradeAnswer}
     />
   ));
 
@@ -44,9 +86,15 @@ function QuizPage() {
         <div className='quizzes'>
           {quizzesElements}
           <div className='button-container'>
-            {/* <h4>You scored 3/5 correct answers</h4> */}
-            <Button text='Check answers' />
-            {/* <Button text='Play again' /> */}
+            {resultOpened && (
+              <h4>
+                You scored {correctCount}/{quizzes.length} correct answers
+              </h4>
+            )}
+            <Button
+              text={resultOpened ? 'Play again' : 'Check answers'}
+              onClick={handleButtonClick}
+            />
           </div>
         </div>
       )}

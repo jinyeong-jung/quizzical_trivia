@@ -1,8 +1,12 @@
 import PropTypes from 'prop-types';
 import './Button.css';
 
-function Button({ text }) {
-  return <button className='button'>{text}</button>;
+function Button({ text, onClick }) {
+  return (
+    <button className='button' onClick={onClick}>
+      {text}
+    </button>
+  );
 }
 
 export default Button;
