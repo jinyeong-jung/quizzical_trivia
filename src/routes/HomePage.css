@@ -1,4 +1,4 @@
-.home {
+.home-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -6,13 +6,13 @@
 }
 
 .blobYellow {
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
 }
 
 .blobBlue {
-  position: absolute;
+  position: fixed;
   left: 0;
   bottom: 0;
 }
@@ -45,23 +45,4 @@ main {
   text-align: center;
   color: #293264;
   margin: 0 0 50px 0;
-}
-
-.quiz-btn {
-  background-color: #4d5b9e;
-  color: #f5f7fb;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: 16px;
-  border-radius: 15px;
-  width: 200px;
-  height: 50px;
-  border: none;
-  cursor: pointer;
-}
-
-.quiz-btn:active {
-  box-shadow: 1px 1px 0 rgb(0 0 0 / 20%);
-  position: relative;
-  top: 1px;
 }
