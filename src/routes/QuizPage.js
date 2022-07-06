@@ -11,16 +11,17 @@ function QuizPage() {
 
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [resultOpened, setResultOpened] = useState(false);
 
   useEffect(() => {
     async function getQuizzes() {
       const res = await fetch(API_URL);
       const json = await res.json();
       setQuizzes(json.results);
+      await setLoading(false);
     }
 
     getQuizzes();
-    setLoading(false);
   }, []);
 
   const quizzesElements = quizzes.map((quiz) => (
@@ -29,6 +30,7 @@ function QuizPage() {
       question={quiz.question}
       correctAnswer={quiz.correct_answer}
       incorrectAnswers={quiz.incorrect_answers}
+      resultOpened={resultOpened}
     />
   ));
 
