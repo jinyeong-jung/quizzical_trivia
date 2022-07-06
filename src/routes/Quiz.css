@@ -1,0 +1,11 @@
+.blobYellow {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.blobBlue {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
