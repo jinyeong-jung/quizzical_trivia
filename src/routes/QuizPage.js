@@ -28,11 +28,23 @@ function QuizPage() {
     getQuizzes();
   }, []);
 
+  function replaceString(text) {
+    return text.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+  }
+
   function makeQuizObjects(data) {
     return data.results.map((quiz) => ({
       id: nanoid(),
-      question: quiz.question,
-      answers: shuffleAnswers(quiz.correct_answer, quiz.incorrect_answers),
+      question: replaceString(quiz.question),
+      answers: shuffleAnswers(quiz.correct_answer, quiz.incorrect_answers).map(
+        (item) => {
+          if (typeof item === 'string') {
+            return replaceString(item);
+          } else {
+            return item;
+          }
+        }
+      ),
       correct: false,
     }));
   }
