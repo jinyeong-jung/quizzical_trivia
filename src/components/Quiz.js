@@ -1,30 +1,37 @@
 import PropTypes from 'prop-types';
-import Answer from './Answer';
+import { useState } from 'react';
 import './Quiz.css';
 
 function Quiz({ question, answers, resultOpened, gradeAnswer }) {
-  function clickAnswer(selectedAnswerId) {
-    const selectedAnswer = answers.find(
-      (answer) => answer.id === selectedAnswerId
-    );
-    gradeAnswer(selectedAnswer.isCorrect);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  function selectAnswer(answerId) {
+    const answer = answers.find((answer) => answer.id === answerId);
+
+    if (selectedAnswer && selectedAnswer.id === answerId) {
+      setSelectedAnswer(null);
+    } else {
+      setSelectedAnswer(answer);
+    }
   }
+
+  const answerElements = answers.map((answer) => (
+    <button
+      key={answer.id}
+      onClick={() => selectAnswer(answer.id)}
+      disabled={resultOpened}
+      className={`answer ${
+        selectedAnswer && selectedAnswer.id === answer.id ? 'selected' : null
+      } ${!resultOpened ? null : answer.isCorrect ? 'correct' : 'incorrect'}`}
+    >
+      {answer.value}
+    </button>
+  ));
 
   return (
     <div className='quiz'>
       <h4 className='question'>{question}</h4>
-      <div className='answers'>
-        {answers.map((answer) => (
-          <Answer
-            key={answer.id}
-            id={answer.id}
-            value={answer.value}
-            isCorrect={answer.isCorrect}
-            resultOpened={resultOpened}
-            clickAnswer={clickAnswer}
-          />
-        ))}
-      </div>
+      <div className='answers'>{answerElements}</div>
     </div>
   );
 }

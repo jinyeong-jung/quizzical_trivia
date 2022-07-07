@@ -15,38 +15,50 @@ function QuizPage() {
   const [correctCount, setCorrectCount] = useState(0);
 
   useEffect(() => {
-    async function getQuizzes() {
-      setLoading(true);
-      const res = await fetch(API_URL);
-      const json = await res.json();
-      const quizObjects = makeQuizObjects(json);
-
-      setQuizzes(quizObjects);
-      await setLoading(false);
-    }
-
-    getQuizzes();
-  }, []);
-
-  function replaceString(text) {
-    return text.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
-  }
-
-  function makeQuizObjects(data) {
-    return data.results.map((quiz) => ({
-      id: nanoid(),
-      question: replaceString(quiz.question),
-      answers: shuffleAnswers(quiz.correct_answer, quiz.incorrect_answers).map(
-        (item) => {
-          if (typeof item === 'string') {
-            return replaceString(item);
+    function makeQuizObjects(data) {
+      return data.results.map((quiz) => ({
+        id: nanoid(),
+        question: replaceString(quiz.question),
+        answers: shuffleAnswers(
+          quiz.correct_answer,
+          quiz.incorrect_answers
+        ).map((item) => {
+          if (typeof item.value === 'string') {
+            return { ...item, value: replaceString(item.value) };
           } else {
             return item;
           }
-        }
-      ),
-      correct: false,
-    }));
+        }),
+        correct: false,
+      }));
+    }
+
+    async function getQuizzes() {
+      setLoading(true);
+
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      const quizzes = await makeQuizObjects(data);
+
+      setQuizzes(quizzes);
+      setLoading(false);
+    }
+
+    if (!resultOpened) {
+      getQuizzes();
+    }
+  }, [resultOpened]);
+
+  function replaceString(text) {
+    return text
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&micro;/g, 'µ')
+      .replace(/&Uuml;/g, 'Ü')
+      .replace(/&amp;/g, '&')
+      .replace(/&Eacute;/g, 'É')
+      .replace(/&eacute;/g, 'é')
+      .replace(/&deg;/g, '°');
   }
 
   function shuffleAnswers(correctAnswer, incorrectAnswers) {
@@ -72,21 +84,24 @@ function QuizPage() {
 
   function handleButtonClick() {
     if (resultOpened) {
-      console.log(correctCount);
+      setResultOpened(false);
+      setCorrectCount(0);
     } else {
       setResultOpened(true);
     }
   }
 
-  const quizzesElements = quizzes.map((quiz) => (
-    <Quiz
-      key={quiz.id}
-      question={quiz.question}
-      answers={quiz.answers}
-      resultOpened={resultOpened}
-      gradeAnswer={gradeAnswer}
-    />
-  ));
+  const quizzesElements =
+    quizzes &&
+    quizzes.map((quiz) => (
+      <Quiz
+        key={quiz.id}
+        question={quiz.question}
+        answers={quiz.answers}
+        resultOpened={resultOpened}
+        gradeAnswer={gradeAnswer}
+      />
+    ));
 
   return (
     <div className='quiz-page'>
