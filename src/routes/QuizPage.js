@@ -10,9 +10,15 @@ function QuizPage() {
   const API_URL = 'https://opentdb.com/api.php?amount=10';
 
   const [quizzes, setQuizzes] = useState([]);
+  const [answeredQuizzes, setAnsweredQuizzes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [resultOpened, setResultOpened] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+
+  useEffect(() => {
+    const correctQuizzes = answeredQuizzes.filter((quiz) => quiz.isCorrect);
+    setCorrectCount(correctQuizzes.length);
+  }, [answeredQuizzes]);
 
   useEffect(() => {
     function makeQuizObjects(data) {
@@ -58,7 +64,14 @@ function QuizPage() {
       .replace(/&amp;/g, '&')
       .replace(/&Eacute;/g, 'É')
       .replace(/&eacute;/g, 'é')
-      .replace(/&deg;/g, '°');
+      .replace(/&deg;/g, '°')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&shy;/g, '­')
+      .replace(/&auml;/g, 'ä')
+      .replace(/&uuml;/g, 'ü')
+      .replace(/&ouml;/g, 'ö')
+      .replace(/&rsquo;/g, '’');
   }
 
   function shuffleAnswers(correctAnswer, incorrectAnswers) {
@@ -78,16 +91,25 @@ function QuizPage() {
       });
   }
 
-  function gradeAnswer(quizCorrect) {
-    setCorrectCount((prevCount) => (quizCorrect ? prevCount + 1 : prevCount));
+  function gradeAnswer(answeredQuiz) {
+    setAnsweredQuizzes((prev) => {
+      return answeredQuiz.selectedAnswerId
+        ? [...prev, answeredQuiz]
+        : prev.filter((quiz) => quiz.id !== answeredQuiz.id);
+    });
   }
 
   function handleButtonClick() {
     if (resultOpened) {
       setResultOpened(false);
+      setAnsweredQuizzes([]);
       setCorrectCount(0);
     } else {
-      setResultOpened(true);
+      if (answeredQuizzes.length < quizzes.length) {
+        alert('You must answer all the questions');
+      } else {
+        setResultOpened(true);
+      }
     }
   }
 
@@ -96,6 +118,7 @@ function QuizPage() {
     quizzes.map((quiz) => (
       <Quiz
         key={quiz.id}
+        id={quiz.id}
         question={quiz.question}
         answers={quiz.answers}
         resultOpened={resultOpened}
